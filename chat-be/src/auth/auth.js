@@ -9,7 +9,6 @@ passport.use('signup', new localStrategy({
     passwordField: 'password',
 }, async (email, password, done) => {
     try {
-        console.log(email, password)
         const user = await UserModel.create({ email, password });
         return done(null, user);
     } catch (error) {
@@ -39,7 +38,7 @@ passport.use('login', new localStrategy({
 
 passport.use(new JWTstrategy({
     secretOrKey : 'top_secret',
-    jwtFromRequest : ExtractJWT.fromUrlQueryParameter('secret_token')
+    jwtFromRequest : ExtractJWT.fromAuthHeaderAsBearerToken()
   }, async (token, done) => {
     try {
       return done(null, token.user);

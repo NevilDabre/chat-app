@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const secureRoute = require('./secure-routes');
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.post('/login', async (req, res, next) => {
     passport.authenticate('login', async (err, user, info) => {
         try {
             if (err || !user) {
-                const error = new Error('An Error occured')
+                const error = new Error('An Error occured: User Not Found.')
                 return next(error);
             }
             req.login(user, { session: false }, async (error) => {
@@ -29,9 +30,12 @@ router.post('/login', async (req, res, next) => {
                 return res.json({ token });
             });
         } catch (error) {
-            return next(error);
+            return next({ message: 'Error at login'});
         }
     })(req, res, next);
 });
+
+//We plugin our jwt strategy as a middleware so only verified users can access this route
+router.use('/user', passport.authenticate('jwt', { session: false }), secureRoute);
 
 module.exports = router;
